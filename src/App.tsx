@@ -25,123 +25,6 @@ const planets: Planet[] = [
   { name: '海王星', nameEn: 'Neptune', color: '#4466ff', radius: 10, orbitRadius: 395, actualRadius: 24622, distanceFromSun: 4495, orbitalPeriod: 60190, speed: 0.006, description: '太陽系中距離太陽最遠的行星。擁有太陽系中最強的風，風速可達每小時2,100公里。' },
 ];
 
-function generateStandaloneHtml(): string {
-  const planetData = JSON.stringify(planets.map(p => ({
-    name: p.name, nameEn: p.nameEn, color: p.color, radius: p.radius,
-    orbitRadius: p.orbitRadius, actualRadius: p.actualRadius,
-    distanceFromSun: p.distanceFromSun, orbitalPeriod: p.orbitalPeriod,
-    speed: p.speed, desc: p.description, ringColor: p.ringColor || ''
-  })));
-
-  return `<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>互動式太陽系學習演示</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body,#app{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif}
-body{background:#0a0a1a;color:#fff}
-#app{display:flex;flex-direction:column}
-.hdr{flex-shrink:0;padding:12px 24px;background:linear-gradient(to right,#0d1b3e,#1a0d3e);border-bottom:1px solid rgba(255,255,255,.1)}
-.hdr h1{font-size:1.3rem;font-weight:700;letter-spacing:1px}
-.hdr p{font-size:.75rem;color:#9ca3af;margin-top:2px}
-.main{display:flex;flex:1;overflow:hidden}
-.cw{flex:1;position:relative;min-width:0}
-.cw canvas{display:block;width:100%;height:100%}
-.ctrl{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);border-radius:9999px;padding:8px 20px;border:1px solid rgba(255,255,255,.1)}
-.bp{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;transition:background .2s}
-.bp:hover{background:rgba(255,255,255,.2)}
-.bp svg{width:16px;height:16px;fill:currentColor}
-.sg{display:flex;align-items:center;gap:8px}
-.sl{font-size:.7rem;color:rgba(255,255,255,.6)}
-.sv{font-size:.7rem;color:#fff;font-family:monospace;width:36px;text-align:center}
-input[type=range]{-webkit-appearance:none;appearance:none;width:120px;height:6px;background:rgba(255,255,255,.2);border-radius:3px;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#60a5fa;border:none}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#60a5fa;border:none;cursor:pointer}
-.br{font-size:.7rem;color:rgba(255,255,255,.6);padding:4px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:none;cursor:pointer;transition:all .2s}
-.br:hover{color:#fff;background:rgba(255,255,255,.1)}
-.pnl{width:320px;flex-shrink:0;background:rgba(13,16,37,.95);border-left:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:20px}
-.pnl h2{font-size:1.1rem;font-weight:700;margin-bottom:16px}
-.dsc{font-size:.85rem;color:#d1d5db;line-height:1.6;margin-bottom:20px}
-.ph{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.pd{width:40px;height:40px;border-radius:50%;flex-shrink:0}
-.ph h2{margin-bottom:0;font-size:1.25rem}
-.ph .sub{font-size:.7rem;color:#9ca3af}
-.bc{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;padding:4px;transition:color .2s}
-.bc:hover{color:#fff}
-.ic{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.05);margin-bottom:10px}
-.ic .ii{font-size:1.1rem}
-.ic .il{font-size:.7rem;color:#9ca3af}
-.ic .iv{font-size:.85rem;font-weight:500;margin-top:2px}
-.pl{display:flex;flex-direction:column;gap:6px}
-.pi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid transparent;cursor:pointer;transition:all .2s;text-align:left;width:100%;color:#fff;font-family:inherit}
-.pi:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
-.pi .dt{width:24px;height:24px;border-radius:50%;flex-shrink:0}
-.pi .inf{flex:1;min-width:0}
-.pi .nm{font-size:.85rem;font-weight:500}
-.pi .en{font-size:.7rem;color:#6b7280}
-.pi .ds{font-size:.7rem;color:#9ca3af}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:rgba(255,255,255,.05)}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
-@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fi{animation:fi .3s ease-out}
-@media(max-width:768px){.main{flex-direction:column}.pnl{width:100%;max-height:45vh;border-left:none;border-top:1px solid rgba(255,255,255,.1)}.hdr h1{font-size:1.1rem}input[type=range]{width:80px}}
-</style>
-</head>
-<body>
-<div id="app">
-<header class="hdr"><h1>🌌 互動式太陽系學習演示</h1><p>點擊行星查看詳細資訊 | 使用控制項調整速度</p></header>
-<div class="main">
-<div class="cw"><canvas id="c"></canvas>
-<div class="ctrl">
-<button class="bp" id="bP"><svg id="iPa" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><svg id="iPl" viewBox="0 0 24 24" style="display:none"><polygon points="5,3 19,12 5,21"/></svg></button>
-<div class="sg"><span class="sl">速度</span><input type="range" id="sS" min="0.1" max="10" step="0.1" value="1"/><span class="sv" id="sV">1.0x</span></div>
-<button class="br" id="bR">重置</button>
-</div></div>
-<div class="pnl" id="pnl"></div>
-</div></div>
-<script>
-const P=${planetData};
-let ip=true,sp=1,t=0,lt=0,sel=null,hov=null,pp=[];
-const cv=document.getElementById('c'),cx=cv.getContext('2d');
-function rs(){const w=cv.parentElement;cv.width=w.clientWidth;cv.height=w.clientHeight}
-rs();window.addEventListener('resize',rs);
-const st=[];for(let i=0;i<200;i++){const s=i*9301+49297;st.push({x:(s%233280)/233280,y:((s*7)%233280)/233280,sz:((s*13)%100)/100*1.5+.3,a:((s*17)%100)/100*.5+.3})}
-function lc(h,a){const n=parseInt(h.replace('#',''),16),r=Math.min(255,(n>>16)+a),g=Math.min(255,((n>>8)&255)+a),b=Math.min(255,(n&255)+a);return'#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
-function dc(h,a){const n=parseInt(h.replace('#',''),16),r=Math.max(0,(n>>16)-a),g=Math.max(0,((n>>8)&255)-a),b=Math.max(0,(n&255)-a);return'#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
-function fp(d){if(d<365)return d+' 地球日';const y=d/365.25;if(y<2)return d.toLocaleString()+' 地球日 ('+y.toFixed(2)+' 年)';return y.toFixed(1)+' 地球年 ('+d.toLocaleString()+' 日)'}
-function draw(){const w=cv.width,h=cv.height,mx=w/2,my=h/2;
-cx.fillStyle='#0a0a1a';cx.fillRect(0,0,w,h);
-st.forEach(s=>{cx.beginPath();cx.arc(s.x*w,s.y*h,s.sz,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,'+s.a+')';cx.fill()});
-P.forEach(p=>{cx.beginPath();cx.arc(mx,my,p.orbitRadius,0,Math.PI*2);cx.strokeStyle=hov===p.name?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.08)';cx.lineWidth=hov===p.name?1.5:.5;cx.stroke()});
-const sg=cx.createRadialGradient(mx,my,0,mx,my,30);sg.addColorStop(0,'#fff7a0');sg.addColorStop(.3,'#ffdd44');sg.addColorStop(.7,'#ff9900');sg.addColorStop(1,'rgba(255,102,0,.27)');cx.beginPath();cx.arc(mx,my,30,0,Math.PI*2);cx.fillStyle=sg;cx.fill();
-const gg=cx.createRadialGradient(mx,my,25,mx,my,55);gg.addColorStop(0,'rgba(255,200,50,.3)');gg.addColorStop(1,'rgba(255,200,50,0)');cx.beginPath();cx.arc(mx,my,55,0,Math.PI*2);cx.fillStyle=gg;cx.fill();
-pp=[];P.forEach(p=>{const a=t*p.speed*.01,x=mx+Math.cos(a)*p.orbitRadius,y=my+Math.sin(a)*p.orbitRadius;pp.push({name:p.name,x,y,r:p.radius});
-const pg=cx.createRadialGradient(x,y,p.radius*.5,x,y,p.radius*2);pg.addColorStop(0,p.color+'44');pg.addColorStop(1,'transparent');cx.beginPath();cx.arc(x,y,p.radius*2,0,Math.PI*2);cx.fillStyle=pg;cx.fill();
-const bg=cx.createRadialGradient(x-p.radius*.3,y-p.radius*.3,0,x,y,p.radius);bg.addColorStop(0,lc(p.color,40));bg.addColorStop(.7,p.color);bg.addColorStop(1,dc(p.color,40));cx.beginPath();cx.arc(x,y,p.radius,0,Math.PI*2);cx.fillStyle=bg;cx.fill();
-if(p.ringColor){cx.beginPath();cx.ellipse(x,y,p.radius*2,p.radius*.5,.3,0,Math.PI*2);cx.strokeStyle=p.ringColor+'aa';cx.lineWidth=2.5;cx.stroke()}
-if(hov===p.name||p.radius>=10){cx.font='11px sans-serif';cx.fillStyle='rgba(255,255,255,.8)';cx.textAlign='center';cx.fillText(p.name,x,y-p.radius-8)}})}
-function anim(ts){if(lt===0)lt=ts;if(ip)t+=(ts-lt)*sp*.06;lt=ts;draw();requestAnimationFrame(anim)}
-requestAnimationFrame(anim);
-cv.addEventListener('click',function(e){const r=cv.getBoundingClientRect(),ex=e.clientX-r.left,ey=e.clientY-r.top;let f=null;for(const p of pp){if(Math.sqrt((ex-p.x)**2+(ey-p.y)**2)<=p.r+8){f=P.find(x=>x.name===p.name);break}}sel=f;rp()});
-cv.addEventListener('mousemove',function(e){const r=cv.getBoundingClientRect(),ex=e.clientX-r.left,ey=e.clientY-r.top;let f=null;for(const p of pp){if(Math.sqrt((ex-p.x)**2+(ey-p.y)**2)<=p.r+8){f=p.name;cv.style.cursor='pointer';break}}if(!f)cv.style.cursor='default';hov=f});
-document.getElementById('bP').addEventListener('click',function(){ip=!ip;document.getElementById('iPa').style.display=ip?'block':'none';document.getElementById('iPl').style.display=ip?'none':'block'});
-document.getElementById('sS').addEventListener('input',function(){sp=parseFloat(this.value);document.getElementById('sV').textContent=sp.toFixed(1)+'x'});
-document.getElementById('bR').addEventListener('click',function(){sp=1;document.getElementById('sS').value=1;document.getElementById('sV').textContent='1.0x'});
-function rp(){const el=document.getElementById('pnl');if(sel){const p=sel,ds=p.distanceFromSun<1000?p.distanceFromSun+' 百萬公里':(p.distanceFromSun/1000).toFixed(1)+' 十億公里';
-el.innerHTML='<div class="fi"><div class="ph"><div class="pd" style="background:radial-gradient(circle at 35% 35%,'+lc(p.color,40)+','+p.color+','+dc(p.color,40)+')"></div><div><h2>'+p.name+'</h2><div class="sub">'+p.nameEn+'</div></div><button class="bc" id="bC"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div><p class="dsc">'+p.desc+'</p><div class="ic"><span class="ii">📏</span><div><div class="il">半徑</div><div class="iv">'+p.actualRadius.toLocaleString()+' 公里</div></div></div><div class="ic"><span class="ii">☀️</span><div><div class="il">與太陽的距離</div><div class="iv">'+ds+'</div></div></div><div class="ic"><span class="ii">🔄</span><div><div class="il">公轉週期</div><div class="iv">'+fp(p.orbitalPeriod)+'</div></div></div><div class="ic"><span class="ii">⚡</span><div><div class="il">相對速度</div><div class="iv">'+p.speed.toFixed(3)+'x (地球 = 1x)</div></div></div></div>';
-document.getElementById('bC').addEventListener('click',function(){sel=null;rp()})}else{let h='<h2>🪐 太陽系行星</h2><p style="font-size:.8rem;color:#9ca3af;margin-bottom:16px">點擊畫布上的行星查看詳細資訊</p><div class="pl">';
-P.forEach(p=>{const ds=p.distanceFromSun<1000?p.distanceFromSun+' 百萬km':(p.distanceFromSun/1000).toFixed(1)+' 十億km';h+='<button class="pi" data-n="'+p.name+'"><div class="dt" style="background:radial-gradient(circle at 35% 35%,'+lc(p.color,30)+','+p.color+')"></div><div class="inf"><div class="nm">'+p.name+'</div><div class="en">'+p.nameEn+'</div></div><div class="ds">'+ds+'</div></button>'});
-h+='</div>';el.innerHTML=h;el.querySelectorAll('.pi').forEach(b=>{b.addEventListener('click',function(){sel=P.find(p=>p.name===this.dataset.n);rp()});b.addEventListener('mouseenter',function(){hov=this.dataset.n});b.addEventListener('mouseleave',function(){hov=null})})}}
-rp();
-</script>
-</body>
-</html>`;
-}
-
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -330,16 +213,8 @@ export default function App() {
   };
 
   const handleDownload = () => {
-    const htmlContent = generateStandaloneHtml();
-    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'solar-system.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // 在新分頁開啟獨立 HTML 檔案，用戶可用 Ctrl+S 另存為單一 HTML
+    window.open('/solar-system.html', '_blank');
   };
 
   return (
@@ -353,13 +228,16 @@ export default function App() {
         </div>
         <button
           onClick={handleDownload}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 text-green-300 text-sm transition-colors"
-          title="下載單一 HTML 檔案"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 text-green-300 text-sm transition-colors group relative"
+          title="點擊後在新分頁開啟，按 Ctrl+S (或 Cmd+S) 即可儲存為單一 HTML 檔案"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
-          <span className="hidden md:inline">下載單一 HTML</span>
+          <span className="hidden md:inline">取得單一 HTML</span>
+          <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+            開啟後按 Ctrl+S 儲存為單一 HTML 檔案
+          </div>
         </button>
       </header>
 
