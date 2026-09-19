@@ -298,6 +298,24 @@ export default function App() {
     }
   };
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch('/solar-system.html');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'solar-system.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
+      window.open('/solar-system.html', '_blank');
+    }
+  };
+
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -324,11 +342,23 @@ export default function App() {
   return (
     <div className="w-full h-screen bg-[#0a0a1a] flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-[#0d1b3e] to-[#1a0d3e] border-b border-white/10">
-        <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
-          🌌 互動式太陽系學習演示
-        </h1>
-        <p className="text-xs md:text-sm text-gray-400 mt-0.5">點擊行星查看詳細資訊 | 使用控制項調整速度</p>
+      <header className="flex-shrink-0 px-6 py-3 bg-gradient-to-r from-[#0d1b3e] to-[#1a0d3e] border-b border-white/10 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">
+            🌌 互動式太陽系學習演示
+          </h1>
+          <p className="text-xs md:text-sm text-gray-400 mt-0.5">點擊行星查看詳細資訊 | 使用控制項調整速度</p>
+        </div>
+        <button
+          onClick={handleDownload}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-300 text-sm transition-colors"
+          title="下載獨立 HTML 檔案"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span className="hidden md:inline">下載獨立 HTML</span>
+        </button>
       </header>
 
       {/* Main content */}
